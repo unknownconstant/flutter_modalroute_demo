@@ -7,9 +7,11 @@ import 'AppState.dart';
 import 'main.dart';
 
 class Popup extends ModalRoute{
-  Popup(); //// Color passed into constructor from caller which has access to context.
+  final bool colorFromContext;
+  Color color;
+  Popup(this.colorFromContext); //// Color passed into constructor from caller which has access to context.
   @override
-  Color get barrierColor => Theme.of(navigatorKey.currentContext).backgroundColor;
+  Color get barrierColor => colorFromContext ? color : Theme.of(navigatorKey.currentContext).backgroundColor;
 
   @override
   bool get barrierDismissible => true;
@@ -18,7 +20,12 @@ class Popup extends ModalRoute{
   String get barrierLabel => null;
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) => PopupPageConnected();
+  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+    if(colorFromContext) {
+      color = Theme.of(context).backgroundColor;
+    }
+    return PopupPageConnected();
+  }
   @override
   bool get maintainState => false;
 

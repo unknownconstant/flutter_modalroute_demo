@@ -42,12 +42,13 @@ class MyApp extends StatelessWidget {
 }
 class MyHomePage extends StatelessWidget {
   final VoidCallback dispatchModal;
+  final VoidCallback openColorFromBuild;
   
   handleButton(){
     dispatchModal();
   }
 
-  const MyHomePage({Key key, @required this.dispatchModal}) : super(key: key);
+  const MyHomePage({Key key, @required this.dispatchModal, this.openColorFromBuild}) : super(key: key);
   
   @override
   build(BuildContext context){
@@ -60,6 +61,10 @@ class MyHomePage extends StatelessWidget {
               onPressed: handleButton,
               child: Text('Open with async_redux'),
             ),
+            RaisedButton(
+              onPressed: openColorFromBuild,
+              child: Text('Open with color from buildpage context'),
+              )
           ]
         ),
       ),
@@ -74,6 +79,7 @@ class MyHomePageConnected extends StatelessWidget {
       builder: (BuildContext context, MyHomePageViewModel vm){
         return MyHomePage(
           dispatchModal: vm.openModalFunction,
+          openColorFromBuild: vm.openColorFromBuild,
         );
       },
     );
@@ -84,15 +90,18 @@ class MyHomePageConnected extends StatelessWidget {
 class MyHomePageViewModel extends BaseModel<AppState> {
   MyHomePageViewModel();
   VoidCallback openModalFunction;
+  VoidCallback openColorFromBuild;
   VoidCallback closeModalFunction;
   
   MyHomePageViewModel.build({
     this.openModalFunction,
+    this.openColorFromBuild,
     this.closeModalFunction,
   }) : super();
   @override
   fromStore() => MyHomePageViewModel.build(
     openModalFunction: () => dispatch(ActionOpenModal()),
+    openColorFromBuild: () => dispatch(ActionOpenModalColorFromContext()),
     closeModalFunction: () => dispatch(ActionCloseModal())
   );
   
@@ -102,8 +111,17 @@ class ActionOpenModal extends ReduxAction<AppState> {
   ActionOpenModal();
   @override
   AppState reduce() {
+    dispatch(NavigateAction.push(Popup(false)));
+    return null;
+  } 
+}
+
+class ActionOpenModalColorFromContext extends ReduxAction<AppState> {
+  ActionOpenModalColorFromContext();
+  @override
+  AppState reduce() {
     Color c = Theme.of(navigatorKey.currentContext).backgroundColor;
-    dispatch(NavigateAction.push(Popup()));
+    dispatch(NavigateAction.push(Popup(true)));
     return null;
   } 
 }
